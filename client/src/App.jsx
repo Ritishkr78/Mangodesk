@@ -72,10 +72,14 @@ function App() {
         setTranscript(response.data.transcript);
       }
     } catch (err) {
-      const message =
+      const errorMessage =
         err.response?.data?.error ||
         "Failed to upload and process file. Please try again.";
-      setError(message);
+      setError(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      );
       console.error(err);
     }
     setIsLoading(false);
