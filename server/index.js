@@ -8,6 +8,7 @@ const mammoth = require("mammoth");
 const xlsx = require("xlsx");
 const pdf = require("pdf-parse");
 const fs = require("fs");
+const { marked } = require("marked");
 
 const upload = multer({ dest: "uploads/" });
 
@@ -79,8 +80,38 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 async function summarize(text, prompt, isCombining = false) {
   const model = isCombining ? "llama3-70b-8192" : "llama3-8b-8192";
   const systemContent = isCombining
-    ? "You are a master synthesizer. Combine the following summaries into a single, coherent, and final summary based on the original user prompt. Preserve key details and ensure a smooth narrative flow."
-    : "You are an expert summarizer. Summarize the following text based on the user's prompt, focusing on key details.";
+    ? `You are a master synthesizer. Your task is to combine multiple summary fragments into a single, final, professionally formatted meeting summary. The user's original prompt was: "{prompt}". Use the fragments to construct a coherent summary. The final output must follow this structure exactly, using Markdown for formatting:
+
+### Subject: [Concise and descriptive subject line]
+
+**Key Discussion Points:**
+- [Bulleted list of the most important topics discussed]
+- [Each point should be clear and concise]
+
+**Action Items:**
+1. [Numbered list of specific tasks assigned]
+2. [Include who is responsible if mentioned]
+
+**Next Steps:**
+- [Bulleted list of future plans or upcoming meetings]
+
+Directly output the formatted summary without any introductions, conversational text, or explanations.`
+    : `You are a professional meeting assistant. Your task is to summarize the provided text based on the user's prompt: "{prompt}". The final output must be formatted as a professional email summary. Follow this structure exactly, using Markdown for formatting:
+
+### Subject: [Concise and descriptive subject line]
+
+**Key Discussion Points:**
+- [Bulleted list of the most important topics discussed]
+- [Each point should be clear and concise]
+
+**Action Items:**
+1. [Numbered list of specific tasks assigned]
+2. [Include who is responsible if mentioned]
+
+**Next Steps:**
+- [Bulleted list of future plans or upcoming meetings]
+
+Directly output the formatted summary without any introductions, conversational text, or explanations.`;
 
   const chatCompletion = await groq.chat.completions.create({
     messages: [
@@ -184,7 +215,7 @@ app.post("/api/send-email", async (req, res) => {
     from: process.env.EMAIL_USER || "your-email@example.com",
     to: recipients.join(","),
     subject: "Your Generated Meeting Summary",
-    text: summary,
+    html: marked(summary), // Convert Markdown to HTML
   };
 
   try {

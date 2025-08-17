@@ -75,8 +75,11 @@ function App() {
         setError(
           "Could not extract text from the file. It may be an image, a scanned document, or empty."
         );
+        setTranscript(""); // Clear transcript if new file is invalid
+        setSummary(""); // Clear summary if new file is invalid
       } else {
-        setTranscript(response.data.transcript);
+        setTranscript(response.data.transcript); // Set new transcript on success
+        setSummary(""); // Clear old summary when new transcript is ready
       }
     } catch (err) {
       const errorMessage =
