@@ -21,6 +21,31 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// Health and root routes for visibility
+app.get("/", (req, res) => {
+  res
+    .type("text/plain")
+    .send(
+      [
+        "Mango Desk API is running.",
+        "",
+        "Available endpoints:",
+        "POST /api/upload        -> Upload a file (txt, pdf, docx, xlsx) and extract text",
+        "POST /api/summarize     -> Summarize extracted text with a prompt",
+        "POST /api/send-email    -> Send summary via email",
+        "GET  /api/health        -> Health check",
+      ].join("\n")
+    );
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // New endpoint for file upload and text extraction
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   if (!req.file) {
