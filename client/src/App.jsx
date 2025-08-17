@@ -4,7 +4,8 @@ import FileUpload from "./components/FileUpload";
 import PromptInput from "./components/PromptInput";
 import SummaryDisplay from "./components/SummaryDisplay";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
 
 function App() {
   const [transcript, setTranscript] = useState("");
@@ -60,11 +61,15 @@ function App() {
     formData.append("file", file);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       if (!response.data.transcript || !response.data.transcript.trim()) {
         setError(
@@ -77,7 +82,11 @@ function App() {
       const errorMessage =
         err.response?.data?.error ||
         "Failed to upload and process file. Please try again.";
-      setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
+      setError(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      );
       console.error(err);
     }
     setIsLoading(false);
