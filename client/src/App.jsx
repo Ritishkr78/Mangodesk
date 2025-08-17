@@ -4,6 +4,8 @@ import FileUpload from "./components/FileUpload";
 import PromptInput from "./components/PromptInput";
 import SummaryDisplay from "./components/SummaryDisplay";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
+
 function App() {
   const [transcript, setTranscript] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -58,7 +60,7 @@ function App() {
     formData.append("file", file);
 
     try {
-      const response = await axios.post("/api/upload", formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -75,11 +77,7 @@ function App() {
       const errorMessage =
         err.response?.data?.error ||
         "Failed to upload and process file. Please try again.";
-      setError(
-        typeof errorMessage === "string"
-          ? errorMessage
-          : JSON.stringify(errorMessage)
-      );
+      setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
       console.error(err);
     }
     setIsLoading(false);
@@ -116,7 +114,7 @@ function App() {
     setError("");
     setSummary("");
     try {
-      const response = await axios.post("/api/summarize", {
+      const response = await axios.post(`${API_BASE_URL}/api/summarize`, {
         transcript,
         prompt,
       });
@@ -165,7 +163,7 @@ function App() {
     setEmailStatus({ message: "", isError: false });
 
     try {
-      await axios.post("/api/send-email", {
+      await axios.post(`${API_BASE_URL}/api/send-email`, {
         summary,
         recipients: recipientList,
       });
